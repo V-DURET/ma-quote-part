@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0071E3">
+<title>Ma quote-part — Charges de copropriété</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root {
+    --blanc: #FFFFFF;
+    --gris-fond: #F5F5F7;
+    --gris-titre: #1D1D1F;
+    --gris-texte: #86868B;
+    --gris-bordure: #D2D2D7;
+    --bleu: #0071E3;
+    --bleu-clair: #E8F1FD;
+    --vert: #34C759;
+    --vert-clair: #E6F8EC;
+    --jaune: #FFB000;
+    --jaune-clair: #FFF6E0;
+    --ombre: 0 2px 12px rgba(0,0,0,0.06);
+    --ombre-forte: 0 4px 24px rgba(0,0,0,0.10);
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    background: var(--gris-fond);
+    color: var(--gris-titre);
+    line-height: 1.5;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 60px;
+  }
+
+  /* ===== EN-TÊTE & NAV ===== */
+  header {
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--gris-bordure);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 14px 20px 0;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .brand svg { width: 30px; height: 30px; flex-shrink: 0; }
+  .brand .nom {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .brand .pt { transition: color .25s; }
+  nav { display: flex; gap: 4px; }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--gris-texte);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--gris-titre); }
+  .tab.actif-bleu  { color: var(--bleu);  border-bottom-color: var(--bleu); }
+  .tab.actif-vert  { color: var(--vert);  border-bottom-color: var(--vert); }
+  .tab.actif-jaune { color: #C77700;      border-bottom-color: var(--jaune); }
+
+  /* ===== CONTENU ===== */
+  main { max-width: 720px; margin: 0 auto; padding: 28px 20px; }
+  .page { display: none; }
+  .page.visible { display: block; animation: fade .3s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+    line-height: 1.15;
+  }
+  .sous-titre {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gris-texte);
+    margin-bottom: 14px;
+  }
+  .intro {
+    font-size: 18px;
+    color: var(--gris-texte);
+    margin-bottom: 24px;
+    max-width: 560px;
+  }
+
+  /* Bandeau RGPD */
+  .rgpd {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--blanc);
+    border: 1px solid var(--gris-bordure);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--gris-texte);
+    margin-bottom: 24px;
+    line-height: 1.45;
+  }
+  .rgpd .ico { flex-shrink: 0; font-size: 16px; }
+
+  /* ===== CARTE FORMULAIRE ===== */
+  .carte {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--ombre);
+    margin-bottom: 28px;
+  }
+  .champ { margin-bottom: 20px; }
+  .champ:last-of-type { margin-bottom: 24px; }
+  .label-ligne { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  label { font-size: 16px; font-weight: 600; color: var(--gris-titre); }
+
+  /* Bulle d'aide */
+  .aide {
+    position: relative; display: inline-flex;
+    width: 22px; height: 22px;
+    align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: var(--gris-fond); color: var(--gris-texte);
+    font-size: 13px; font-weight: 700; font-style: italic;
+    cursor: help; border: 1px solid var(--gris-bordure); flex-shrink: 0;
+  }
+  .aide .bulle {
+    position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
+    width: 260px; background: var(--gris-titre); color: #fff;
+    padding: 12px 14px; border-radius: 12px;
+    font-size: 14px; font-weight: 400; font-style: normal; line-height: 1.45;
+    opacity: 0; visibility: hidden; transition: opacity .2s; z-index: 50;
+    box-shadow: var(--ombre-forte);
+  }
+  .aide .bulle::after {
+    content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    border: 7px solid transparent; border-top-color: var(--gris-titre);
+  }
+  .aide:hover .bulle, .aide:focus .bulle, .aide.ouvert .bulle { opacity: 1; visibility: visible; }
+  @media (max-width: 520px) {
+    .aide .bulle { width: 220px; left: auto; right: -10px; transform: none; }
+    .aide .bulle::after { left: auto; right: 14px; transform: none; }
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 15px 16px;
+    font-size: 17px; font-family: inherit; color: var(--gris-titre);
+    background: var(--gris-fond); border: 2px solid transparent; border-radius: 12px;
+    transition: border-color .2s, background .2s; -moz-appearance: textfield;
+  }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input:focus { outline: none; background: var(--blanc); }
+  .bleu input:focus { border-color: var(--bleu); }
+  .vert input:focus { border-color: var(--vert); }
+
+  .btn-calc {
+    width: 100%; padding: 16px;
+    font-size: 18px; font-weight: 600; color: #fff;
+    border: none; border-radius: 12px; cursor: pointer; font-family: inherit;
+    transition: filter .15s, transform .05s;
+  }
+  .btn-calc:active { transform: scale(0.99); }
+  .bleu .btn-calc { background: var(--bleu); }
+  .vert .btn-calc { background: var(--vert); }
+  .btn-calc:hover { filter: brightness(1.08); }
+
+  .resultat-live {
+    text-align: center; padding: 18px; margin-top: 18px; border-radius: 12px; display: none;
+  }
+  .resultat-live.montre { display: block; animation: fade .3s; }
+  .bleu .resultat-live { background: var(--bleu-clair); }
+  .vert .resultat-live { background: var(--vert-clair); }
+  .resultat-live .label-res { font-size: 15px; color: var(--gris-texte); font-weight: 500; }
+  .resultat-live .montant { font-size: 38px; font-weight: 700; letter-spacing: -0.02em; margin-top: 2px; }
+  .bleu .resultat-live .montant { color: var(--bleu); }
+  .vert .resultat-live .montant { color: var(--vert); }
+
+  /* ===== LISTE COMPARATIF (regroupée) ===== */
+  .recap h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .recap .recap-intro { font-size: 15px; color: var(--gris-texte); margin-bottom: 20px; }
+
+  .groupe { margin-bottom: 26px; }
+  .groupe-tete {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .groupe-tete svg { width: 22px; height: 22px; }
+  .groupe-tete h3 { font-size: 17px; font-weight: 600; }
+  .groupe-tete .compte {
+    margin-left: auto; font-size: 14px; color: var(--gris-texte); font-weight: 500;
+  }
+
+  .ligne {
+    background: var(--blanc); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: var(--ombre); display: flex; align-items: center; gap: 12px;
+  }
+  .ligne .picto { width: 30px; height: 30px; flex-shrink: 0; }
+  .ligne-info { flex: 1; min-width: 0; }
+  .ligne-nom { font-weight: 600; font-size: 16px; margin-bottom: 1px; }
+  .ligne-detail { font-size: 13px; color: var(--gris-texte); }
+  .ligne-montant { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+  .t-bleu .ligne-montant { color: var(--bleu); }
+  .t-vert .ligne-montant { color: var(--vert); }
+  .btn-suppr {
+    background: var(--gris-fond); border: none; width: 30px; height: 30px;
+    border-radius: 50%; cursor: pointer; color: var(--gris-texte);
+    font-size: 17px; line-height: 1; flex-shrink: 0; transition: background .2s, color .2s;
+  }
+  .btn-suppr:hover { background: #fde; color: #d23; }
+  .vide { text-align: center; color: var(--gris-texte); padding: 24px 20px; font-size: 15px; }
+  .btn-vider {
+    background: none; border: none; color: var(--gris-texte);
+    font-size: 14px; cursor: pointer; font-family: inherit; text-decoration: underline;
+  }
+  .btn-vider:hover { color: #d23; }
+  .recap-tete { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+
+  /* ===== PAGE GUIDE ===== */
+  .guide-titre-cat {
+    font-size: 14px; font-weight: 600; color: var(--gris-texte);
+    text-transform: uppercase; letter-spacing: 0.04em; margin: 24px 0 8px;
+  }
+  .guide-bloc {
+    background: var(--blanc); border-radius: var(--radius);
+    padding: 8px 22px; box-shadow: var(--ombre); margin-bottom: 8px;
+  }
+  .guide-ligne {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 15px 0; border-bottom: 1px solid var(--gris-bordure);
+  }
+  .guide-ligne:last-child { border-bottom: none; }
+  .guide-charge { font-weight: 500; font-size: 16px; }
+  .guide-cat {
+    font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+    white-space: nowrap; text-align: center;
+  }
+  .cat-generale  { background: var(--bleu-clair); color: var(--bleu); }
+  .cat-batiment  { background: #FFF3E0; color: #C77700; }
+  .cat-ascenseur { background: #F3E8FF; color: #8B3FD9; }
+  .cat-chauffage { background: var(--vert-clair); color: #1E8A3C; }
+  .avertissement {
+    background: var(--jaune-clair); border: 1px solid #F0D98C; border-radius: 12px;
+    padding: 16px 18px; font-size: 15px; color: #8a6d1a; margin-top: 16px; line-height: 1.5;
+  }
+
+  footer {
+    max-width: 720px; margin: 40px auto 0; padding: 0 20px;
+    text-align: center; font-size: 13px; color: var(--gris-texte);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <span id="logo-camembert"></span>
+      <span class="nom">Ma quote-part<span class="pt" id="logo-point" style="color:var(--bleu)">.</span></span>
+    </div>
+    <nav>
+      <button class="tab actif-bleu" id="tab-charges"   onclick="afficher('charges', this)">Charges</button>
+      <button class="tab"            id="tab-chauffage" onclick="afficher('chauffage', this)">Chauffage</button>
+      <button class="tab"            id="tab-guide"     onclick="afficher('guide', this)">Guide</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ PAGE CHARGES ============ -->
+  <section class="page visible bleu" id="page-charges">
+    <h1>Charges</h1>
+    <div class="sous-titre">Charges &amp; travaux</div>
+    <p class="intro">Un devis, des travaux, une charge ? Calculez votre quote-part réelle avant de décider.</p>
+
+    <div class="rgpd">
+      <span class="ico">🔒</span>
+      <span>Vos données restent sur votre appareil. Aucune information n'est envoyée ni stockée sur un serveur.</span>
+    </div>
+
+    <div class="carte">
+      <div class="champ">
+        <div class="label-ligne"><label for="t-nom">Nom du calcul</label></div>
+        <input type="text" id="t-nom" placeholder="Ex. : Devis espaces verts">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="t-total">Montant total (€)</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">Peut être une charge annuelle OU une dépense ponctuelle / un devis de travaux (ravalement, ascenseur, ménage…).</span>
+          </span>
+        </div>
+        <input type="number" id="t-total" inputmode="decimal" placeholder="Ex. : 12 000" oninput="calculLive('t')">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="t-part">Vos tantièmes</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">Vos tantièmes et la base changent selon le type de charge : charges communes générales, charges d'un bâtiment, ascenseur… Chaque poste a ses propres valeurs. 👉 Reportez-vous à votre règlement de copropriété ou à votre décompte (onglet Guide).</span>
+          </span>
+        </div>
+        <input type="number" id="t-part" inputmode="decimal" placeholder="Ex. : 1 000" oninput="calculLive('t')">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="t-base">Base totale (total des tantièmes)</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">Le total des tantièmes pour ce type de charge (souvent 1000, 10000 ou 100000 — variable). Indiqué sur votre décompte, colonne « Base ».</span>
+          </span>
+        </div>
+        <input type="number" id="t-base" inputmode="decimal" placeholder="Ex. : 100 000" oninput="calculLive('t')">
+      </div>
+      <button class="btn-calc" onclick="ajouter('t')">Calculer &amp; enregistrer</button>
+      <div class="resultat-live" id="t-live">
+        <div class="label-res">Votre quote-part</div>
+        <div class="montant" id="t-live-montant">— €</div>
+      </div>
+    </div>
+
+    <div class="recap" id="recap-charges"></div>
+  </section>
+
+  <!-- ============ PAGE CHAUFFAGE ============ -->
+  <section class="page vert" id="page-chauffage">
+    <h1>Chauffage</h1>
+    <div class="sous-titre">Part individuelle au répartiteur</div>
+    <p class="intro">Estimez votre part de chauffage, qui varie chaque année selon votre consommation.</p>
+
+    <div class="rgpd">
+      <span class="ico">🔒</span>
+      <span>Vos données restent sur votre appareil. Aucune information n'est envoyée ni stockée sur un serveur.</span>
+    </div>
+
+    <div class="carte">
+      <div class="champ">
+        <div class="label-ligne"><label for="c-nom">Nom du calcul</label></div>
+        <input type="text" id="c-nom" placeholder="Ex. : Chauffage de l'année">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="c-total">Montant total du chauffage (€)</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">Le coût total du chauffage de la copropriété pour la période (indiqué sur votre décompte).</span>
+          </span>
+        </div>
+        <input type="number" id="c-total" inputmode="decimal" placeholder="Ex. : 10 000" oninput="calculLive('c')">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="c-part">Votre consommation individuelle totale</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">Votre consommation totale relevée par le répartiteur (unités RFC). Si vous avez plusieurs appareils, additionnez-les. Elle change chaque année.</span>
+          </span>
+        </div>
+        <input type="number" id="c-part" inputmode="decimal" placeholder="Ex. : 100" oninput="calculLive('c')">
+      </div>
+      <div class="champ">
+        <div class="label-ligne">
+          <label for="c-base">Base totale (consommation de la copro)</label>
+          <span class="aide" tabindex="0" onclick="this.classList.toggle('ouvert')">i
+            <span class="bulle">La consommation totale de la copropriété (somme de tous les lots), indiquée sur votre décompte.</span>
+          </span>
+        </div>
+        <input type="number" id="c-base" inputmode="decimal" placeholder="Ex. : 10 000" oninput="calculLive('c')">
+      </div>
+      <button class="btn-calc" onclick="ajouter('c')">Calculer &amp; enregistrer</button>
+      <div class="resultat-live" id="c-live">
+        <div class="label-res">Votre quote-part</div>
+        <div class="montant" id="c-live-montant">— €</div>
+      </div>
+    </div>
+
+    <div class="recap" id="recap-chauffage"></div>
+  </section>
+
+  <!-- ============ PAGE GUIDE ============ -->
+  <section class="page" id="page-guide">
+    <h1>Guide des charges</h1>
+    <div class="sous-titre">Quelle catégorie pour quelle charge ?</div>
+    <p class="intro">La catégorie détermine les tantièmes et la base à utiliser dans votre calcul.</p>
+
+    <div class="guide-titre-cat">Charges communes générales</div>
+    <div class="guide-bloc">
+      <div class="guide-ligne"><span class="guide-charge">Entretien des espaces verts</span><span class="guide-cat cat-generale">Commune générale</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Honoraires du syndic</span><span class="guide-cat cat-generale">Commune générale</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Assurance de l'immeuble</span><span class="guide-cat cat-generale">Commune générale</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Nettoyage des parties communes</span><span class="guide-cat cat-generale">Commune générale</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Électricité des parties communes</span><span class="guide-cat cat-generale">Commune générale</span></div>
+    </div>
+
+    <div class="guide-titre-cat">Charges de bâtiment</div>
+    <div class="guide-bloc">
+      <div class="guide-ligne"><span class="guide-charge">Ravalement de façade</span><span class="guide-cat cat-batiment">Bâtiment</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Réfection de toiture</span><span class="guide-cat cat-batiment">Bâtiment</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Entretien hublots / éclairage du bâtiment</span><span class="guide-cat cat-batiment">Bâtiment</span></div>
+      <div class="guide-ligne"><span class="guide-charge">VMC du bâtiment</span><span class="guide-cat cat-batiment">Bâtiment</span></div>
+    </div>
+
+    <div class="guide-titre-cat">Charges d'ascenseur</div>
+    <div class="guide-bloc">
+      <div class="guide-ligne"><span class="guide-charge">Entretien / contrat d'ascenseur</span><span class="guide-cat cat-ascenseur">Ascenseur</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Modernisation / réparation d'ascenseur</span><span class="guide-cat cat-ascenseur">Ascenseur</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Changement de porte d'ascenseur</span><span class="guide-cat cat-ascenseur">Ascenseur</span></div>
+    </div>
+
+    <div class="guide-titre-cat">Chauffage</div>
+    <div class="guide-bloc">
+      <div class="guide-ligne"><span class="guide-charge">Part commune du chauffage</span><span class="guide-cat cat-chauffage">Chauffage</span></div>
+      <div class="guide-ligne"><span class="guide-charge">Part individuelle (répartiteur)</span><span class="guide-cat cat-chauffage">Chauffage</span></div>
+    </div>
+
+    <div class="avertissement">
+      ⚠️ Cette catégorisation est <strong>indicative</strong>. C'est le <strong>règlement de copropriété de votre immeuble</strong> qui fait foi : il précise les tantièmes et les bases applicables à chaque type de charge.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Outil d'aide à la décision pour copropriétaires · Vos données restent sur votre appareil.
+</footer>
+
+<script>
+  // ---- Camembert SVG (flat élégant, part détachée) ----
+  function camembert(couleur, taille) {
+    const r = taille * 0.40, cx = taille/2, cy = taille/2, det = taille*0.045;
+    const rad = d => d * Math.PI / 180;
+    const mid = rad(-42.5), dx = Math.cos(mid)*det, dy = Math.sin(mid)*det;
+    const x0 = cx+dx + r*Math.cos(rad(-90)), y0 = cy+dy + r*Math.sin(rad(-90));
+    const x1 = cx+dx + r*Math.cos(rad(5)),   y1 = cy+dy + r*Math.sin(rad(5));
+    return `<svg width="${taille}" height="${taille}" viewBox="0 0 ${taille} ${taille}">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${couleur}" stroke-width="${taille*0.05}" opacity="0.22"/>
+      <path d="M${(cx+dx).toFixed(1)},${(cy+dy).toFixed(1)} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 0 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${couleur}"/>
+    </svg>`;
+  }
+  const COULEURS = { charges: '#0071E3', chauffage: '#34C759', guide: '#FFB000' };
+
+  // ---- Navigation ----
+  function afficher(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+    document.getElementById('page-' + page).classList.add('visible');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('actif-bleu','actif-vert','actif-jaune'));
+    if (page === 'charges')   btn.classList.add('actif-bleu');
+    if (page === 'chauffage') btn.classList.add('actif-vert');
+    if (page === 'guide')     btn.classList.add('actif-jaune');
+    // logo + point changent de couleur
+    document.getElementById('logo-camembert').innerHTML = camembert(COULEURS[page], 30);
+    document.getElementById('logo-point').style.color = COULEURS[page];
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // ---- Calcul ----
+  function calcule(total, part, base) {
+    if (!total || !part || !base || base == 0) return null;
+    return total * (part / base);
+  }
+  function euros(n) {
+    return n.toLocaleString('fr-FR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' €';
+  }
+  function calculLive(p) {
+    const total = parseFloat(document.getElementById(p+'-total').value);
+    const part  = parseFloat(document.getElementById(p+'-part').value);
+    const base  = parseFloat(document.getElementById(p+'-base').value);
+    const res = calcule(total, part, base);
+    const box = document.getElementById(p+'-live');
+    if (res !== null) { document.getElementById(p+'-live-montant').textContent = euros(res); box.classList.add('montre'); }
+    else box.classList.remove('montre');
+  }
+
+  // ---- Mémoire ----
+  let calculs = [];
+  function charger() {
+    try { const d = localStorage.getItem('mes-calculs-copro'); if (d) calculs = JSON.parse(d); } catch(e) { calculs = []; }
+    afficherRecaps();
+  }
+  function sauver() { try { localStorage.setItem('mes-calculs-copro', JSON.stringify(calculs)); } catch(e) {} }
+
+  function ajouter(p) {
+    const type = p === 't' ? 'charges' : 'chauffage';
+    const nomDefaut = p === 't' ? 'Calcul de charges' : 'Calcul chauffage';
+    const nom = document.getElementById(p+'-nom').value.trim() || nomDefaut;
+    const total = parseFloat(document.getElementById(p+'-total').value);
+    const part  = parseFloat(document.getElementById(p+'-part').value);
+    const base  = parseFloat(document.getElementById(p+'-base').value);
+    const res = calcule(total, part, base);
+    if (res === null) { alert('Merci de remplir les 3 montants (total, votre part, base) avec des nombres valides.'); return; }
+    calculs.unshift({ id: Date.now(), type, nom, total, part, base, resultat: res });
+    sauver(); afficherRecaps();
+    ['-nom','-total','-part','-base'].forEach(s => document.getElementById(p+s).value = '');
+    document.getElementById(p+'-live').classList.remove('montre');
+  }
+  function supprimer(id) { calculs = calculs.filter(c => c.id !== id); sauver(); afficherRecaps(); }
+  function viderTout(type) {
+    const libelle = type === 'charges' ? 'de charges' : 'de chauffage';
+    if (!calculs.some(c => c.type === type)) return;
+    if (confirm('Effacer tous vos calculs ' + libelle + ' ?')) {
+      calculs = calculs.filter(c => c.type !== type); sauver(); afficherRecaps();
+    }
+  }
+  function echapper(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  // ---- Affichage des récaps (un par page, regroupés) ----
+  function ligneHTML(c) {
+    const cls = c.type === 'charges' ? 't-bleu' : 't-vert';
+    const labelPart = c.type === 'charges' ? 'tantièmes' : 'conso';
+    const detail = c.total.toLocaleString('fr-FR') + ' € · ' + c.part.toLocaleString('fr-FR') + ' ' + labelPart + ' / ' + c.base.toLocaleString('fr-FR');
+    return `<div class="ligne ${cls}">
+      <span class="picto">${camembert(COULEURS[c.type], 30)}</span>
+      <div class="ligne-info"><div class="ligne-nom">${echapper(c.nom)}</div><div class="ligne-detail">${detail}</div></div>
+      <div class="ligne-montant">${euros(c.resultat)}</div>
+      <button class="btn-suppr" onclick="supprimer(${c.id})" title="Supprimer" aria-label="Supprimer">×</button>
+    </div>`;
+  }
+  function recapHTML(type) {
+    const items = calculs.filter(c => c.type === type);
+    const couleur = COULEURS[type];
+    const titre = type === 'charges' ? 'Mes calculs de charges' : 'Mes calculs de chauffage';
+    let html = `<div class="recap-tete"><h2>Mes calculs</h2>`;
+    if (items.length) html += `<button class="btn-vider" onclick="viderTout('${type}')">Tout effacer</button>`;
+    html += `</div><p class="recap-intro">Vos calculs sont enregistrés sur cet appareil pour les comparer.</p>`;
+    html += `<div class="groupe"><div class="groupe-tete">${camembert(couleur,22)}<h3>${titre}</h3><span class="compte">${items.length} calcul${items.length>1?'s':''}</span></div>`;
+    if (items.length) html += items.map(ligneHTML).join('');
+    else html += `<div class="vide">Aucun calcul pour l'instant.<br>Vos calculs s'afficheront ici pour comparer.</div>`;
+    html += `</div>`;
+    return html;
+  }
+  function afficherRecaps() {
+    document.getElementById('recap-charges').innerHTML = recapHTML('charges');
+    document.getElementById('recap-chauffage').innerHTML = recapHTML('chauffage');
+  }
+
+  // ---- Démarrage ----
+  document.getElementById('logo-camembert').innerHTML = camembert(COULEURS.charges, 30);
+  charger();
+
+  // ---- PWA ----
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
